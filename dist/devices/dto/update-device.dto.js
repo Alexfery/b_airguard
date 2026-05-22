@@ -25,6 +25,26 @@ __decorate([
     __metadata("design:type", String)
 ], UpdateDeviceDto.prototype, "windowMode", void 0);
 __decorate([
+    (0, class_validator_1.IsBoolean)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", Boolean)
+], UpdateDeviceDto.prototype, "fanOn", void 0);
+__decorate([
+    (0, class_validator_1.IsIn)(['auto', 'manual']),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], UpdateDeviceDto.prototype, "fanMode", void 0);
+__decorate([
+    (0, class_validator_1.IsBoolean)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", Boolean)
+], UpdateDeviceDto.prototype, "humidifierOn", void 0);
+__decorate([
+    (0, class_validator_1.IsIn)(['auto', 'manual']),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], UpdateDeviceDto.prototype, "humidifierMode", void 0);
+__decorate([
     (0, class_validator_1.IsNumber)(),
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", Number)
@@ -33,5 +53,30 @@ __decorate([
     (0, class_validator_1.IsNumber)(),
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", Number)
+], UpdateDeviceDto.prototype, "tvocThreshold", void 0);
+__decorate([
+    (0, class_validator_1.IsNumber)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", Number)
 ], UpdateDeviceDto.prototype, "pm25Threshold", void 0);
+__decorate([
+    (0, class_validator_1.IsNumber)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", Number)
+], UpdateDeviceDto.prototype, "tempThresholdMin", void 0);
+__decorate([
+    (0, class_validator_1.IsNumber)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", Number)
+], UpdateDeviceDto.prototype, "tempThresholdMax", void 0);
+__decorate([
+    (0, class_validator_1.IsNumber)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", Number)
+], UpdateDeviceDto.prototype, "humidityThresholdMin", void 0);
+__decorate([
+    (0, class_validator_1.IsNumber)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", Number)
+], UpdateDeviceDto.prototype, "humidityThresholdMax", void 0);
 //# sourceMappingURL=update-device.dto.js.map

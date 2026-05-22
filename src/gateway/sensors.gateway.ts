@@ -4,11 +4,15 @@ import { Server, Socket } from 'socket.io';
 
 export interface SensorData {
   deviceId: string;
-  co2: number;
-  pm25: number;
-  temperature: number;
-  humidity: number;
   timestamp: string;
+  co2Ppm: number;
+  tvocPpb: number;
+  pm25Ugm3: number;
+  temperatureC: number;
+  humidityPct: number;
+  pressureAtm: number;
+  fanOn: boolean;
+  humidifierOn: boolean;
 }
 
 @WebSocketGateway({

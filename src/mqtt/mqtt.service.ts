@@ -55,6 +55,8 @@ export class MqttService implements OnModuleInit, OnModuleDestroy {
       this.client.subscribe('airguard/+/sensors', { qos: 1 });
       this.client.subscribe('airguard/+/status', { qos: 1 });
       this.client.subscribe('airguard/+/window/state', { qos: 1 });
+      this.client.subscribe('airguard/+/fan/state', { qos: 1 });
+      this.client.subscribe('airguard/+/humidifier/state', { qos: 1 });
       this.logger.log('Subscribed to airguard/# topics');
     });
 
@@ -86,7 +88,6 @@ export class MqttService implements OnModuleInit, OnModuleDestroy {
       return;
     }
 
-    // Topic format: airguard/{deviceId}/sensors|status|window/state
     const parts = topic.split('/');
     if (parts.length < 3 || parts[0] !== 'airguard') return;
 
@@ -103,18 +104,33 @@ export class MqttService implements OnModuleInit, OnModuleDestroy {
       case 'window/state':
         await this.handleWindowState(deviceId, payload);
         break;
+      case 'fan/state':
+        await this.handleFanState(deviceId, payload);
+        break;
+      case 'humidifier/state':
+        await this.handleHumidifierState(deviceId, payload);
+        break;
       default:
         this.logger.debug(`Unhandled subtopic: ${subtopic}`);
     }
   }
 
   private async handleSensors(deviceId: string, payload: any): Promise<void> {
-    const { co2, pm25, temperature, humidity } = payload;
-    if (co2 == null || pm25 == null || temperature == null || humidity == null) {
+    const { co2_ppm, tvoc_ppb, pm25_ugm3, temperature_c, humidity_pct, pressure_atm, fan_on, humidifier_on } = payload;
+    if (co2_ppm == null || pm25_ugm3 == null || temperature_c == null || humidity_pct == null) {
       this.logger.warn(`Incomplete sensor payload for ${deviceId}`);
       return;
     }
-    await this.sensorsService.saveReading(deviceId, { co2, pm25, temperature, humidity });
+    await this.sensorsService.saveReading(deviceId, {
+      co2_ppm,
+      tvoc_ppb: tvoc_ppb ?? 0,
+      pm25_ugm3,
+      temperature_c,
+      humidity_pct,
+      pressure_atm: pressure_atm ?? 1.013,
+      fan_on: fan_on ?? false,
+      humidifier_on: humidifier_on ?? false,
+    });
   }
 
   private async handleStatus(deviceId: string, payload: any): Promise<void> {
@@ -134,6 +150,22 @@ export class MqttService implements OnModuleInit, OnModuleDestroy {
     this.logger.log(`Device ${deviceId} window confirmed: ${payload.open ? 'open' : 'closed'}`);
   }
 
+  private async handleFanState(deviceId: string, payload: any): Promise<void> {
+    await this.supabaseService.supabase
+      .from('devices')
+      .update({ fan_on: payload.on })
+      .eq('id', deviceId);
+    this.logger.log(`Device ${deviceId} fan confirmed: ${payload.on ? 'on' : 'off'}`);
+  }
+
+  private async handleHumidifierState(deviceId: string, payload: any): Promise<void> {
+    await this.supabaseService.supabase
+      .from('devices')
+      .update({ humidifier_on: payload.on })
+      .eq('id', deviceId);
+    this.logger.log(`Device ${deviceId} humidifier confirmed: ${payload.on ? 'on' : 'off'}`);
+  }
+
   publishWindowCommand(deviceId: string, open: boolean): void {
     if (!this.client?.connected) {
       this.logger.warn(`MQTT not connected — cannot send window command to ${deviceId}`);
@@ -146,6 +178,38 @@ export class MqttService implements OnModuleInit, OnModuleDestroy {
         this.logger.error(`Failed to publish to ${topic}: ${err.message}`);
       } else {
         this.logger.log(`Window command sent: ${topic} → ${payload}`);
+      }
+    });
+  }
+
+  publishFanCommand(deviceId: string, on: boolean): void {
+    if (!this.client?.connected) {
+      this.logger.warn(`MQTT not connected — cannot send fan command to ${deviceId}`);
+      return;
+    }
+    const topic = `airguard/${deviceId}/fan/cmd`;
+    const payload = JSON.stringify({ on });
+    this.client.publish(topic, payload, { qos: 1 }, (err) => {
+      if (err) {
+        this.logger.error(`Failed to publish to ${topic}: ${err.message}`);
+      } else {
+        this.logger.log(`Fan command sent: ${topic} → ${payload}`);
+      }
+    });
+  }
+
+  publishHumidifierCommand(deviceId: string, on: boolean): void {
+    if (!this.client?.connected) {
+      this.logger.warn(`MQTT not connected — cannot send humidifier command to ${deviceId}`);
+      return;
+    }
+    const topic = `airguard/${deviceId}/humidifier/cmd`;
+    const payload = JSON.stringify({ on });
+    this.client.publish(topic, payload, { qos: 1 }, (err) => {
+      if (err) {
+        this.logger.error(`Failed to publish to ${topic}: ${err.message}`);
+      } else {
+        this.logger.log(`Humidifier command sent: ${topic} → ${payload}`);
       }
     });
   }

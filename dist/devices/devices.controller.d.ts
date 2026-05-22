@@ -8,4 +8,10 @@ export declare class DevicesController {
     findOne(id: string, req: any): Promise<import("./devices.service").DeviceResponse>;
     create(dto: CreateDeviceDto, req: any): Promise<import("./devices.service").DeviceResponse>;
     update(id: string, dto: UpdateDeviceDto, req: any): Promise<import("./devices.service").DeviceResponse>;
+    setFan(id: string, body: {
+        on: boolean;
+    }): Promise<void>;
+    setHumidifier(id: string, body: {
+        on: boolean;
+    }): Promise<void>;
 }

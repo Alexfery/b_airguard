@@ -31,10 +31,13 @@ let SensorsController = class SensorsController {
         }
         return this.sensorsService.getHistory(deviceId, fromDate, toDate);
     }
+    getPredictions(deviceId, limit) {
+        return this.sensorsService.getPredictions(deviceId, limit);
+    }
 };
 exports.SensorsController = SensorsController;
 __decorate([
-    (0, common_1.Get)(':deviceId'),
+    (0, common_1.Get)(':deviceId/history'),
     __param(0, (0, common_1.Param)('deviceId')),
     __param(1, (0, common_1.Query)('from')),
     __param(2, (0, common_1.Query)('to')),
@@ -42,8 +45,16 @@ __decorate([
     __metadata("design:paramtypes", [String, String, String]),
     __metadata("design:returntype", void 0)
 ], SensorsController.prototype, "getHistory", null);
+__decorate([
+    (0, common_1.Get)(':deviceId/predictions'),
+    __param(0, (0, common_1.Param)('deviceId')),
+    __param(1, (0, common_1.Query)('limit', new common_1.DefaultValuePipe(20), common_1.ParseIntPipe)),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Number]),
+    __metadata("design:returntype", void 0)
+], SensorsController.prototype, "getPredictions", null);
 exports.SensorsController = SensorsController = __decorate([
-    (0, common_1.Controller)('history'),
+    (0, common_1.Controller)('sensors'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     __metadata("design:paramtypes", [sensors_service_1.SensorsService])
 ], SensorsController);

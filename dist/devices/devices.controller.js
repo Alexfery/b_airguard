@@ -34,6 +34,12 @@ let DevicesController = class DevicesController {
     update(id, dto, req) {
         return this.devicesService.update(id, req.user.id, dto);
     }
+    setFan(id, body) {
+        return this.devicesService.setFan(id, body.on);
+    }
+    setHumidifier(id, body) {
+        return this.devicesService.setHumidifier(id, body.on);
+    }
 };
 exports.DevicesController = DevicesController;
 __decorate([
@@ -68,6 +74,22 @@ __decorate([
     __metadata("design:paramtypes", [String, update_device_dto_1.UpdateDeviceDto, Object]),
     __metadata("design:returntype", void 0)
 ], DevicesController.prototype, "update", null);
+__decorate([
+    (0, common_1.Patch)(':id/fan'),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:returntype", void 0)
+], DevicesController.prototype, "setFan", null);
+__decorate([
+    (0, common_1.Patch)(':id/humidifier'),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:returntype", void 0)
+], DevicesController.prototype, "setHumidifier", null);
 exports.DevicesController = DevicesController = __decorate([
     (0, common_1.Controller)('devices'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),

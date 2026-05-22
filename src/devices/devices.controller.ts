@@ -37,4 +37,14 @@ export class DevicesController {
   update(@Param('id') id: string, @Body() dto: UpdateDeviceDto, @Request() req: any) {
     return this.devicesService.update(id, req.user.id, dto);
   }
+
+  @Patch(':id/fan')
+  setFan(@Param('id') id: string, @Body() body: { on: boolean }) {
+    return this.devicesService.setFan(id, body.on);
+  }
+
+  @Patch(':id/humidifier')
+  setHumidifier(@Param('id') id: string, @Body() body: { on: boolean }) {
+    return this.devicesService.setHumidifier(id, body.on);
+  }
 }

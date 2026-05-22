@@ -1,17 +1,20 @@
-import { Controller, Get, Param, Query, UseGuards, BadRequestException } from '@nestjs/common';
+import {
+  Controller, Get, Param, Query,
+  UseGuards, BadRequestException,
+  ParseIntPipe, DefaultValuePipe,
+} from '@nestjs/common';
 import { SensorsService } from './sensors.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
-@Controller('history')
+@Controller('sensors')
 @UseGuards(JwtAuthGuard)
 export class SensorsController {
   constructor(private sensorsService: SensorsService) {}
 
   /**
-   * GET /history/:deviceId?from=ISO&to=ISO
-   * Frontend calls: `${apiUrl}/history/${deviceId}?from=${from.toISOString()}&to=${to.toISOString()}`
+   * GET /sensors/:deviceId/history?from=ISO&to=ISO
    */
-  @Get(':deviceId')
+  @Get(':deviceId/history')
   getHistory(
     @Param('deviceId') deviceId: string,
     @Query('from') from: string,
@@ -29,5 +32,16 @@ export class SensorsController {
     }
 
     return this.sensorsService.getHistory(deviceId, fromDate, toDate);
+  }
+
+  /**
+   * GET /sensors/:deviceId/predictions?limit=20
+   */
+  @Get(':deviceId/predictions')
+  getPredictions(
+    @Param('deviceId') deviceId: string,
+    @Query('limit', new DefaultValuePipe(20), ParseIntPipe) limit: number,
+  ) {
+    return this.sensorsService.getPredictions(deviceId, limit);
   }
 }

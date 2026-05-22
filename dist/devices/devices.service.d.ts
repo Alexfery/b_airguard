@@ -9,10 +9,19 @@ export interface DeviceResponse {
     status: 'online' | 'offline';
     windowOpen: boolean;
     windowMode: 'auto' | 'manual';
+    fanOn: boolean;
+    fanMode: 'auto' | 'manual';
+    humidifierOn: boolean;
+    humidifierMode: 'auto' | 'manual';
+    co2Threshold: number;
+    tvocThreshold: number;
+    pm25Threshold: number;
+    tempThresholdMin: number;
+    tempThresholdMax: number;
+    humidityThresholdMin: number;
+    humidityThresholdMax: number;
     firmware: string;
     lastSync: string | null;
-    co2Threshold: number;
-    pm25Threshold: number;
 }
 export declare class DevicesService {
     private supabaseService;
@@ -23,5 +32,7 @@ export declare class DevicesService {
     findOne(id: string, userId: string): Promise<DeviceResponse>;
     create(userId: string, dto: CreateDeviceDto): Promise<DeviceResponse>;
     update(id: string, userId: string, dto: UpdateDeviceDto): Promise<DeviceResponse>;
+    setFan(deviceId: string, on: boolean): Promise<void>;
+    setHumidifier(deviceId: string, on: boolean): Promise<void>;
     private mapDevice;
 }

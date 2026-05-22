@@ -27,10 +27,14 @@ let SensorsService = SensorsService_1 = class SensorsService {
             .from('sensor_readings')
             .insert({
             device_id: deviceId,
-            co2: data.co2,
-            pm25: data.pm25,
-            temperature: data.temperature,
-            humidity: data.humidity,
+            co2_ppm: data.co2_ppm,
+            tvoc_ppb: data.tvoc_ppb,
+            pm25_ugm3: data.pm25_ugm3,
+            temperature_c: data.temperature_c,
+            humidity_pct: data.humidity_pct,
+            pressure_atm: data.pressure_atm,
+            fan_on: data.fan_on,
+            humidifier_on: data.humidifier_on,
         });
         if (error) {
             this.logger.error(`Failed to save reading for ${deviceId}: ${error.message}`);
@@ -38,7 +42,12 @@ let SensorsService = SensorsService_1 = class SensorsService {
         }
         const { data: device } = await this.supabaseService.supabase
             .from('devices')
-            .select('id, name, co2_threshold, pm25_threshold')
+            .select(`
+        id, name,
+        co2_threshold, tvoc_threshold, pm25_threshold,
+        temp_threshold_min, temp_threshold_max,
+        humidity_threshold_min, humidity_threshold_max
+      `)
             .eq('id', deviceId)
             .maybeSingle();
         if (device) {
@@ -46,15 +55,24 @@ let SensorsService = SensorsService_1 = class SensorsService {
                 id: device.id,
                 name: device.name,
                 co2Threshold: device.co2_threshold,
+                tvocThreshold: device.tvoc_threshold,
                 pm25Threshold: device.pm25_threshold,
+                tempThresholdMin: device.temp_threshold_min,
+                tempThresholdMax: device.temp_threshold_max,
+                humidityThresholdMin: device.humidity_threshold_min,
+                humidityThresholdMax: device.humidity_threshold_max,
             }, data);
         }
         this.sensorsGateway.emitSensorData({
             deviceId,
-            co2: data.co2,
-            pm25: data.pm25,
-            temperature: data.temperature,
-            humidity: data.humidity,
+            co2Ppm: data.co2_ppm,
+            tvocPpb: data.tvoc_ppb,
+            pm25Ugm3: data.pm25_ugm3,
+            temperatureC: data.temperature_c,
+            humidityPct: data.humidity_pct,
+            pressureAtm: data.pressure_atm,
+            fanOn: data.fan_on,
+            humidifierOn: data.humidifier_on,
             timestamp: new Date().toISOString(),
         });
     }
@@ -63,18 +81,22 @@ let SensorsService = SensorsService_1 = class SensorsService {
             .from('sensor_readings')
             .select('*')
             .eq('device_id', deviceId)
-            .gte('created_at', from.toISOString())
-            .lte('created_at', to.toISOString())
-            .order('created_at', { ascending: true });
+            .gte('timestamp', from.toISOString())
+            .lte('timestamp', to.toISOString())
+            .order('timestamp', { ascending: true });
         if (error)
             throw new Error(error.message);
         return (data || []).map(row => ({
             deviceId: row.device_id,
-            co2: row.co2,
-            pm25: row.pm25,
-            temperature: row.temperature,
-            humidity: row.humidity,
-            timestamp: row.created_at,
+            co2Ppm: row.co2_ppm,
+            tvocPpb: row.tvoc_ppb,
+            pm25Ugm3: row.pm25_ugm3,
+            temperatureC: row.temperature_c,
+            humidityPct: row.humidity_pct,
+            pressureAtm: row.pressure_atm,
+            fanOn: row.fan_on,
+            humidifierOn: row.humidifier_on,
+            timestamp: row.timestamp,
         }));
     }
     async getLatest(deviceId) {
@@ -82,19 +104,43 @@ let SensorsService = SensorsService_1 = class SensorsService {
             .from('sensor_readings')
             .select('*')
             .eq('device_id', deviceId)
-            .order('created_at', { ascending: false })
+            .order('timestamp', { ascending: false })
             .limit(1)
             .maybeSingle();
         if (!data)
             return null;
         return {
             deviceId: data.device_id,
-            co2: data.co2,
-            pm25: data.pm25,
-            temperature: data.temperature,
-            humidity: data.humidity,
-            timestamp: data.created_at,
+            co2Ppm: data.co2_ppm,
+            tvocPpb: data.tvoc_ppb,
+            pm25Ugm3: data.pm25_ugm3,
+            temperatureC: data.temperature_c,
+            humidityPct: data.humidity_pct,
+            pressureAtm: data.pressure_atm,
+            fanOn: data.fan_on,
+            humidifierOn: data.humidifier_on,
+            timestamp: data.timestamp,
         };
+    }
+    async getPredictions(deviceId, limit = 20) {
+        const { data, error } = await this.supabaseService.supabase
+            .from('predictions')
+            .select('*')
+            .eq('device_id', deviceId)
+            .order('timestamp', { ascending: false })
+            .limit(limit);
+        if (error)
+            throw new Error(error.message);
+        return (data || []).map(row => ({
+            deviceId: row.device_id,
+            timestamp: row.timestamp,
+            predCo2: row.pred_co2,
+            predTvoc: row.pred_tvoc,
+            predPm25: row.pred_pm25,
+            predTemperature: row.pred_temperature,
+            predHumidity: row.pred_humidity,
+            predPressure: row.pred_pressure,
+        }));
     }
 };
 exports.SensorsService = SensorsService;

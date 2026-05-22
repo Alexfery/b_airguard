@@ -19,62 +19,52 @@ let AlertsService = AlertsService_1 = class AlertsService {
         this.supabaseService = supabaseService;
         this.sensorsGateway = sensorsGateway;
         this.logger = new common_1.Logger(AlertsService_1.name);
-        this.TEMP_DANGER = 30;
-        this.TEMP_WARNING = 26;
-        this.HUMIDITY_DANGER = 70;
-        this.HUMIDITY_WARNING = 60;
     }
     async checkAndCreateAlerts(device, reading) {
         const checks = [
-            {
-                metric: 'CO2',
-                value: reading.co2,
-                dangerThreshold: device.co2Threshold,
-                warningThreshold: device.co2Threshold * 0.8,
-                unit: 'ppm',
-            },
-            {
-                metric: 'PM2.5',
-                value: reading.pm25,
-                dangerThreshold: device.pm25Threshold,
-                warningThreshold: device.pm25Threshold * 0.8,
-                unit: 'μg/m³',
-            },
-            {
-                metric: 'temperature',
-                value: reading.temperature,
-                dangerThreshold: this.TEMP_DANGER,
-                warningThreshold: this.TEMP_WARNING,
-                unit: '°C',
-            },
-            {
-                metric: 'humidity',
-                value: reading.humidity,
-                dangerThreshold: this.HUMIDITY_DANGER,
-                warningThreshold: this.HUMIDITY_WARNING,
-                unit: '%',
-            },
+            this.checkSimple('CO2', reading.co2_ppm, device.co2Threshold * 0.8, device.co2Threshold, 'ppm'),
+            this.checkSimple('TVOC', reading.tvoc_ppb, device.tvocThreshold * 0.6, device.tvocThreshold, 'ppb'),
+            this.checkSimple('PM2.5', reading.pm25_ugm3, device.pm25Threshold * 0.6, device.pm25Threshold, 'μg/m³'),
+            this.checkRange('Temperatură', reading.temperature_c, device.tempThresholdMin, device.tempThresholdMax, '°C'),
+            this.checkRange('Umiditate', reading.humidity_pct, device.humidityThresholdMin, device.humidityThresholdMax, '%'),
         ];
         for (const check of checks) {
-            if (check.value > check.dangerThreshold) {
-                await this.persistAlert(device, check, 'danger');
-            }
-            else if (check.value > check.warningThreshold) {
-                await this.persistAlert(device, check, 'warning');
+            if (check.severity) {
+                await this.persistAlert(device, check);
             }
         }
     }
-    async persistAlert(device, check, severity) {
-        const label = severity === 'danger' ? 'Pericol' : 'Atenție';
-        const message = `${check.metric} ${label.toLowerCase()}: ${check.value.toFixed(1)} ${check.unit} în ${device.name}`;
+    checkSimple(metric, value, warningThreshold, dangerThreshold, unit) {
+        let severity = null;
+        let label = '';
+        if (value > dangerThreshold) {
+            severity = 'danger';
+            label = `${metric} pericol: ${value.toFixed(1)} ${unit} (prag: ${dangerThreshold})`;
+        }
+        else if (value > warningThreshold) {
+            severity = 'warning';
+            label = `${metric} atenție: ${value.toFixed(1)} ${unit}`;
+        }
+        return { metric, value, severity, unit, label };
+    }
+    checkRange(metric, value, min, max, unit) {
+        let severity = null;
+        let label = '';
+        if (value < min || value > max) {
+            severity = 'warning';
+            label = `${metric} în afara intervalului normal: ${value.toFixed(1)} ${unit} (interval: ${min}–${max})`;
+        }
+        return { metric, value, severity, unit, label };
+    }
+    async persistAlert(device, check) {
         const { error } = await this.supabaseService.supabase
             .from('alerts')
             .insert({
             device_id: device.id,
             metric: check.metric,
             value: check.value,
-            severity,
-            message,
+            severity: check.severity,
+            message: `${check.label} în ${device.name}`,
         });
         if (error) {
             this.logger.error(`Failed to persist alert: ${error.message}`);

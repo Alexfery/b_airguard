@@ -1,27 +1,25 @@
 import { SupabaseService } from '../database/supabase.service';
 import { SensorsGateway } from '../gateway/sensors.gateway';
+import { SensorReadingDto } from '../sensors/dto/sensor-reading.dto';
 export interface DeviceThresholds {
     id: string;
     name: string;
     co2Threshold: number;
+    tvocThreshold: number;
     pm25Threshold: number;
-}
-export interface SensorReading {
-    co2: number;
-    pm25: number;
-    temperature: number;
-    humidity: number;
+    tempThresholdMin: number;
+    tempThresholdMax: number;
+    humidityThresholdMin: number;
+    humidityThresholdMax: number;
 }
 export declare class AlertsService {
     private supabaseService;
     private sensorsGateway;
     private readonly logger;
-    private readonly TEMP_DANGER;
-    private readonly TEMP_WARNING;
-    private readonly HUMIDITY_DANGER;
-    private readonly HUMIDITY_WARNING;
     constructor(supabaseService: SupabaseService, sensorsGateway: SensorsGateway);
-    checkAndCreateAlerts(device: DeviceThresholds, reading: SensorReading): Promise<void>;
+    checkAndCreateAlerts(device: DeviceThresholds, reading: SensorReadingDto): Promise<void>;
+    private checkSimple;
+    private checkRange;
     private persistAlert;
     getAlertsByDevice(deviceId: string, limit?: number): Promise<{
         id: any;

@@ -18,6 +18,11 @@ __decorate([
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.MinLength)(1),
     __metadata("design:type", String)
+], CreateDeviceDto.prototype, "id", void 0);
+__decorate([
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.MinLength)(1),
+    __metadata("design:type", String)
 ], CreateDeviceDto.prototype, "name", void 0);
 __decorate([
     (0, class_validator_1.IsString)(),
@@ -35,6 +40,26 @@ __decorate([
     __metadata("design:type", Boolean)
 ], CreateDeviceDto.prototype, "windowOpen", void 0);
 __decorate([
+    (0, class_validator_1.IsIn)(['auto', 'manual']),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], CreateDeviceDto.prototype, "fanMode", void 0);
+__decorate([
+    (0, class_validator_1.IsBoolean)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", Boolean)
+], CreateDeviceDto.prototype, "fanOn", void 0);
+__decorate([
+    (0, class_validator_1.IsIn)(['auto', 'manual']),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], CreateDeviceDto.prototype, "humidifierMode", void 0);
+__decorate([
+    (0, class_validator_1.IsBoolean)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", Boolean)
+], CreateDeviceDto.prototype, "humidifierOn", void 0);
+__decorate([
     (0, class_validator_1.IsNumber)(),
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", Number)
@@ -43,5 +68,30 @@ __decorate([
     (0, class_validator_1.IsNumber)(),
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", Number)
+], CreateDeviceDto.prototype, "tvocThreshold", void 0);
+__decorate([
+    (0, class_validator_1.IsNumber)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", Number)
 ], CreateDeviceDto.prototype, "pm25Threshold", void 0);
+__decorate([
+    (0, class_validator_1.IsNumber)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", Number)
+], CreateDeviceDto.prototype, "tempThresholdMin", void 0);
+__decorate([
+    (0, class_validator_1.IsNumber)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", Number)
+], CreateDeviceDto.prototype, "tempThresholdMax", void 0);
+__decorate([
+    (0, class_validator_1.IsNumber)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", Number)
+], CreateDeviceDto.prototype, "humidityThresholdMin", void 0);
+__decorate([
+    (0, class_validator_1.IsNumber)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", Number)
+], CreateDeviceDto.prototype, "humidityThresholdMax", void 0);
 //# sourceMappingURL=create-device.dto.js.map
