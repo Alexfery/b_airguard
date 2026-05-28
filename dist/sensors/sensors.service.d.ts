@@ -31,6 +31,7 @@ export declare class SensorsService {
     private readonly logger;
     constructor(supabaseService: SupabaseService, alertsService: AlertsService, sensorsGateway: SensorsGateway);
     saveReading(deviceId: string, data: SensorReadingDto): Promise<void>;
+    savePrediction(deviceId: string, data: any): Promise<void>;
     getHistory(deviceId: string, from: Date, to: Date): Promise<HistoryEntry[]>;
     getLatest(deviceId: string): Promise<HistoryEntry | null>;
     getPredictions(deviceId: string, limit?: number): Promise<PredictionEntry[]>;

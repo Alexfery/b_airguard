@@ -14,6 +14,7 @@ export declare class MqttService implements OnModuleInit, OnModuleDestroy {
     private connect;
     private handleMessage;
     private handleSensors;
+    private handlePrediction;
     private handleStatus;
     private handleWindowState;
     private handleFanState;

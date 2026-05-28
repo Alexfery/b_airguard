@@ -53,6 +53,7 @@ export class MqttService implements OnModuleInit, OnModuleDestroy {
     this.client.on('connect', () => {
       this.logger.log('MQTT connected');
       this.client.subscribe('airguard/+/sensors', { qos: 1 });
+      this.client.subscribe('airguard/+/prediction', { qos: 1 });
       this.client.subscribe('airguard/+/status', { qos: 1 });
       this.client.subscribe('airguard/+/window/state', { qos: 1 });
       this.client.subscribe('airguard/+/fan/state', { qos: 1 });
@@ -98,6 +99,9 @@ export class MqttService implements OnModuleInit, OnModuleDestroy {
       case 'sensors':
         await this.handleSensors(deviceId, payload);
         break;
+      case 'prediction':
+        await this.handlePrediction(deviceId, payload);
+        break;
       case 'status':
         await this.handleStatus(deviceId, payload);
         break;
@@ -116,21 +120,33 @@ export class MqttService implements OnModuleInit, OnModuleDestroy {
   }
 
   private async handleSensors(deviceId: string, payload: any): Promise<void> {
-    const { co2_ppm, tvoc_ppb, pm25_ugm3, temperature_c, humidity_pct, pressure_atm, fan_on, humidifier_on } = payload;
-    if (co2_ppm == null || pm25_ugm3 == null || temperature_c == null || humidity_pct == null) {
+    if (payload.temperature == null || payload.humidity == null || payload.pm25 == null) {
       this.logger.warn(`Incomplete sensor payload for ${deviceId}`);
       return;
     }
+
     await this.sensorsService.saveReading(deviceId, {
-      co2_ppm,
-      tvoc_ppb: tvoc_ppb ?? 0,
-      pm25_ugm3,
-      temperature_c,
-      humidity_pct,
-      pressure_atm: pressure_atm ?? 1.013,
-      fan_on: fan_on ?? false,
-      humidifier_on: humidifier_on ?? false,
+      temperature: payload.temperature,
+      humidity:    payload.humidity,
+      pressure:    payload.pressure,
+      pm25:        payload.pm25,
+      fan_state:   payload.fan_state ?? 0,
+      hum_state:   payload.hum_state ?? 0,
+      device:      payload.device,
+      location:    payload.location,
+      ble:         payload.ble,
+      ts:          payload.ts,
     });
+
+    await this.supabaseService.supabase
+      .from('devices')
+      .update({ status: 'online', last_sync: new Date().toISOString() })
+      .eq('id', deviceId);
+  }
+
+  private async handlePrediction(deviceId: string, payload: any): Promise<void> {
+    await this.sensorsService.savePrediction(deviceId, payload);
+    this.logger.log(`[MqttService] Prediction saved for device: ${deviceId}`);
   }
 
   private async handleStatus(deviceId: string, payload: any): Promise<void> {

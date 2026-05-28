@@ -34,11 +34,11 @@ export class AlertsService {
 
   async checkAndCreateAlerts(device: DeviceThresholds, reading: SensorReadingDto): Promise<void> {
     const checks: AlertCheck[] = [
-      this.checkSimple('CO2', reading.co2_ppm, device.co2Threshold * 0.8, device.co2Threshold, 'ppm'),
-      this.checkSimple('TVOC', reading.tvoc_ppb, device.tvocThreshold * 0.6, device.tvocThreshold, 'ppb'),
-      this.checkSimple('PM2.5', reading.pm25_ugm3, device.pm25Threshold * 0.6, device.pm25Threshold, 'μg/m³'),
-      this.checkRange('Temperatură', reading.temperature_c, device.tempThresholdMin, device.tempThresholdMax, '°C'),
-      this.checkRange('Umiditate', reading.humidity_pct, device.humidityThresholdMin, device.humidityThresholdMax, '%'),
+      this.checkSimple('CO2', 0, device.co2Threshold * 0.8, device.co2Threshold, 'ppm'),
+      this.checkSimple('TVOC', 0, device.tvocThreshold * 0.6, device.tvocThreshold, 'ppb'),
+      this.checkSimple('PM2.5', reading.pm25, device.pm25Threshold * 0.6, device.pm25Threshold, 'μg/m³'),
+      this.checkRange('Temperatură', reading.temperature, device.tempThresholdMin, device.tempThresholdMax, '°C'),
+      this.checkRange('Umiditate', reading.humidity, device.humidityThresholdMin, device.humidityThresholdMax, '%'),
     ];
 
     for (const check of checks) {

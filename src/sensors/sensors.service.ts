@@ -39,19 +39,22 @@ export class SensorsService {
   ) {}
 
   async saveReading(deviceId: string, data: SensorReadingDto): Promise<void> {
+    const record = {
+      device_id:     deviceId,
+      timestamp:     new Date().toISOString(),
+      co2_ppm:       null,
+      tvoc_ppb:      null,
+      pm25_ugm3:     data.pm25,
+      temperature_c: data.temperature,
+      humidity_pct:  data.humidity,
+      pressure_atm:  data.pressure / 1013.25,
+      fan_on:        data.fan_state === 1,
+      humidifier_on: data.hum_state === 1,
+    };
+
     const { error } = await this.supabaseService.supabase
       .from('sensor_readings')
-      .insert({
-        device_id: deviceId,
-        co2_ppm: data.co2_ppm,
-        tvoc_ppb: data.tvoc_ppb,
-        pm25_ugm3: data.pm25_ugm3,
-        temperature_c: data.temperature_c,
-        humidity_pct: data.humidity_pct,
-        pressure_atm: data.pressure_atm,
-        fan_on: data.fan_on,
-        humidifier_on: data.humidifier_on,
-      });
+      .insert(record);
 
     if (error) {
       this.logger.error(`Failed to save reading for ${deviceId}: ${error.message}`);
@@ -88,16 +91,37 @@ export class SensorsService {
 
     this.sensorsGateway.emitSensorData({
       deviceId,
-      co2Ppm: data.co2_ppm,
-      tvocPpb: data.tvoc_ppb,
-      pm25Ugm3: data.pm25_ugm3,
-      temperatureC: data.temperature_c,
-      humidityPct: data.humidity_pct,
-      pressureAtm: data.pressure_atm,
-      fanOn: data.fan_on,
-      humidifierOn: data.humidifier_on,
+      co2Ppm: 0,
+      tvocPpb: 0,
+      pm25Ugm3: data.pm25,
+      temperatureC: data.temperature,
+      humidityPct: data.humidity,
+      pressureAtm: data.pressure / 1013.25,
+      fanOn: data.fan_state === 1,
+      humidifierOn: data.hum_state === 1,
       timestamp: new Date().toISOString(),
     });
+  }
+
+  async savePrediction(deviceId: string, data: any): Promise<void> {
+    const record = {
+      device_id:        deviceId,
+      timestamp:        new Date().toISOString(),
+      pred_co2:         null,
+      pred_tvoc:        null,
+      pred_pm25:        data.pred_pm25,
+      pred_temperature: data.pred_temperature,
+      pred_humidity:    data.pred_humidity,
+      pred_pressure:    data.pred_pressure / 1013.25,
+    };
+
+    const { error } = await this.supabaseService.supabase
+      .from('predictions')
+      .insert(record);
+
+    if (error) {
+      this.logger.error(`Failed to save prediction for ${deviceId}: ${error.message}`);
+    }
   }
 
   async getHistory(deviceId: string, from: Date, to: Date): Promise<HistoryEntry[]> {
