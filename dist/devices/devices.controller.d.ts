@@ -14,4 +14,7 @@ export declare class DevicesController {
     setHumidifier(id: string, body: {
         on: boolean;
     }): Promise<void>;
+    setAiMode(id: string, body: {
+        mode: 'reaction' | 'prediction' | 'auto';
+    }): Promise<void>;
 }

@@ -1,4 +1,4 @@
-import { IsOptional, IsBoolean, IsNumber, IsIn } from 'class-validator';
+import { IsOptional, IsBoolean, IsNumber, IsIn, IsString } from 'class-validator';
 
 export class UpdateDeviceDto {
   @IsBoolean()
@@ -52,4 +52,9 @@ export class UpdateDeviceDto {
   @IsNumber()
   @IsOptional()
   humidityThresholdMax?: number;
+
+  @IsString()
+  @IsIn(['reaction', 'prediction', 'auto'])
+  @IsOptional()
+  ai_mode?: 'reaction' | 'prediction' | 'auto';
 }

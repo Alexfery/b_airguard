@@ -230,6 +230,22 @@ export class MqttService implements OnModuleInit, OnModuleDestroy {
     });
   }
 
+  publishControlCommand(deviceId: string, mode: string): void {
+    if (!this.client?.connected) {
+      this.logger.warn(`MQTT not connected — cannot send control command to ${deviceId}`);
+      return;
+    }
+    const topic = `airguard/${deviceId}/control`;
+    const payload = JSON.stringify({ mode });
+    this.client.publish(topic, payload, { qos: 1 }, (err) => {
+      if (err) {
+        this.logger.error(`Failed to publish to ${topic}: ${err.message}`);
+      } else {
+        this.logger.log(`Control command sent: ${topic} → ${payload}`);
+      }
+    });
+  }
+
   get isConnected(): boolean {
     return this.client?.connected ?? false;
   }

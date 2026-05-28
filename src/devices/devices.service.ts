@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, Logger } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, Logger } from '@nestjs/common';
 import { SupabaseService } from '../database/supabase.service';
 import { MqttService } from '../mqtt/mqtt.service';
 import { CreateDeviceDto } from './dto/create-device.dto';
@@ -24,6 +24,7 @@ export interface DeviceResponse {
   humidityThresholdMax: number;
   firmware: string;
   lastSync: string | null;
+  aiMode: 'reaction' | 'prediction' | 'auto';
 }
 
 @Injectable()
@@ -162,6 +163,24 @@ export class DevicesService {
       humidityThresholdMax: row.humidity_threshold_max ?? 70,
       firmware: row.firmware ?? 'v2.1.3',
       lastSync: row.last_sync ?? null,
+      aiMode: (row.ai_mode ?? 'auto') as 'reaction' | 'prediction' | 'auto',
     };
+  }
+
+  async setAiMode(deviceId: string, mode: 'reaction' | 'prediction' | 'auto'): Promise<void> {
+    const validModes = ['reaction', 'prediction', 'auto'];
+    if (!validModes.includes(mode)) {
+      throw new BadRequestException(`Invalid AI mode: ${mode}`);
+    }
+
+    const { error } = await this.supabaseService.supabase
+      .from('devices')
+      .update({ ai_mode: mode })
+      .eq('id', deviceId);
+
+    if (error) throw new Error(error.message);
+
+    this.mqttService.publishControlCommand(deviceId, mode);
+    this.logger.log(`[DevicesService] AI mode set to ${mode} for device ${deviceId}`);
   }
 }

@@ -47,4 +47,12 @@ export class DevicesController {
   setHumidifier(@Param('id') id: string, @Body() body: { on: boolean }) {
     return this.devicesService.setHumidifier(id, body.on);
   }
+
+  @Patch(':id/mode')
+  setAiMode(
+    @Param('id') id: string,
+    @Body() body: { mode: 'reaction' | 'prediction' | 'auto' },
+  ) {
+    return this.devicesService.setAiMode(id, body.mode);
+  }
 }

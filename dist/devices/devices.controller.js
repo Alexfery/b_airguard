@@ -40,6 +40,9 @@ let DevicesController = class DevicesController {
     setHumidifier(id, body) {
         return this.devicesService.setHumidifier(id, body.on);
     }
+    setAiMode(id, body) {
+        return this.devicesService.setAiMode(id, body.mode);
+    }
 };
 exports.DevicesController = DevicesController;
 __decorate([
@@ -90,6 +93,14 @@ __decorate([
     __metadata("design:paramtypes", [String, Object]),
     __metadata("design:returntype", void 0)
 ], DevicesController.prototype, "setHumidifier", null);
+__decorate([
+    (0, common_1.Patch)(':id/mode'),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:returntype", void 0)
+], DevicesController.prototype, "setAiMode", null);
 exports.DevicesController = DevicesController = __decorate([
     (0, common_1.Controller)('devices'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),

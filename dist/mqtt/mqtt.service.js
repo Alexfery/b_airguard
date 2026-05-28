@@ -216,6 +216,22 @@ let MqttService = MqttService_1 = class MqttService {
             }
         });
     }
+    publishControlCommand(deviceId, mode) {
+        if (!this.client?.connected) {
+            this.logger.warn(`MQTT not connected — cannot send control command to ${deviceId}`);
+            return;
+        }
+        const topic = `airguard/${deviceId}/control`;
+        const payload = JSON.stringify({ mode });
+        this.client.publish(topic, payload, { qos: 1 }, (err) => {
+            if (err) {
+                this.logger.error(`Failed to publish to ${topic}: ${err.message}`);
+            }
+            else {
+                this.logger.log(`Control command sent: ${topic} → ${payload}`);
+            }
+        });
+    }
     get isConnected() {
         return this.client?.connected ?? false;
     }

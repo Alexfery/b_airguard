@@ -12,4 +12,5 @@ export declare class UpdateDeviceDto {
     tempThresholdMax?: number;
     humidityThresholdMin?: number;
     humidityThresholdMax?: number;
+    ai_mode?: 'reaction' | 'prediction' | 'auto';
 }

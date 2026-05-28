@@ -22,6 +22,7 @@ export interface DeviceResponse {
     humidityThresholdMax: number;
     firmware: string;
     lastSync: string | null;
+    aiMode: 'reaction' | 'prediction' | 'auto';
 }
 export declare class DevicesService {
     private supabaseService;
@@ -35,4 +36,5 @@ export declare class DevicesService {
     setFan(deviceId: string, on: boolean): Promise<void>;
     setHumidifier(deviceId: string, on: boolean): Promise<void>;
     private mapDevice;
+    setAiMode(deviceId: string, mode: 'reaction' | 'prediction' | 'auto'): Promise<void>;
 }

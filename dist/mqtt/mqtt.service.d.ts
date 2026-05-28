@@ -22,5 +22,6 @@ export declare class MqttService implements OnModuleInit, OnModuleDestroy {
     publishWindowCommand(deviceId: string, open: boolean): void;
     publishFanCommand(deviceId: string, on: boolean): void;
     publishHumidifierCommand(deviceId: string, on: boolean): void;
+    publishControlCommand(deviceId: string, mode: string): void;
     get isConnected(): boolean;
 }

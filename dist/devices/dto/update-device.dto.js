@@ -79,4 +79,10 @@ __decorate([
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", Number)
 ], UpdateDeviceDto.prototype, "humidityThresholdMax", void 0);
+__decorate([
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsIn)(['reaction', 'prediction', 'auto']),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], UpdateDeviceDto.prototype, "ai_mode", void 0);
 //# sourceMappingURL=update-device.dto.js.map

@@ -151,7 +151,22 @@ let DevicesService = DevicesService_1 = class DevicesService {
             humidityThresholdMax: row.humidity_threshold_max ?? 70,
             firmware: row.firmware ?? 'v2.1.3',
             lastSync: row.last_sync ?? null,
+            aiMode: (row.ai_mode ?? 'auto'),
         };
+    }
+    async setAiMode(deviceId, mode) {
+        const validModes = ['reaction', 'prediction', 'auto'];
+        if (!validModes.includes(mode)) {
+            throw new common_1.BadRequestException(`Invalid AI mode: ${mode}`);
+        }
+        const { error } = await this.supabaseService.supabase
+            .from('devices')
+            .update({ ai_mode: mode })
+            .eq('id', deviceId);
+        if (error)
+            throw new Error(error.message);
+        this.mqttService.publishControlCommand(deviceId, mode);
+        this.logger.log(`[DevicesService] AI mode set to ${mode} for device ${deviceId}`);
     }
 };
 exports.DevicesService = DevicesService;
